@@ -194,8 +194,29 @@ class Decimater(obja.Model):
         upper = np.tril(np.ones((theta.shape[0],theta.shape[0])))
         total_angle = upper @ theta 
         positions_2D = np.zeros((len(self.neighbor_vertices[vertex_index]), 2))
-        positions_2D[:,0] = r * np.cos(total_angle)  
-        positions_2D[:,1] = r * np.sin(total_angle)  
+        a = 2* np.pi /total_angle[-1]
+        positions_2D[:,0] = (r**a) * np.cos(total_angle * a)  
+        positions_2D[:,1] = (r**a) * np.sin(total_angle * a) 
+        # Define the polygon (constraints boundary) 
+        boundary = Polygon(positions_2D)
+        # Create the triangulation within the boundary
+        triangles = triangulate(boundary) 
+        new_faces = []  
+        for triangle in triangles: 
+            points   = list(triangle.exterior.coords)[0:-1]
+            face = []
+            for pt in points :
+                l = positions_2D == pt 
+                l =  np.where(l[:,0]*l[:,1]==1)[0][0]
+                ind =  cycle[l]
+                face.append(ind)
+            new_faces.append(face)
+    
+
+
+
+
+
    
 
 
